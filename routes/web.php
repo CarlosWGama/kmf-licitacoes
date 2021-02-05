@@ -46,6 +46,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
         Route::group(['prefix' => 'itens'], function () {
             Route::get('/{licitacaoID}/listar', 'ItensLicitacoesController@listar')->name('itens-licitacao.listar');
             Route::post('/{licitacaoID}/cadastrar', 'ItensLicitacoesController@cadastrar')->name('itens-licitacao.cadastrar');
+            Route::post('/{licitacaoID}/atualizar-itens', 'ItensLicitacoesController@atualizar')->name('itens-licitacao.atualizar');
             Route::get('/{licitacaoID}/remover/{id?}', 'ItensLicitacoesController@remover')->name('itens-licitacao.remover');
             Route::get('/{licitacaoID}/gerenciar', 'ItensLicitacoesController@gerenciar')->name('itens-licitacao.gerenciar');
             Route::post('/{licitacaoID}/ajustar/{id?}', 'ItensLicitacoesController@ajustar')->name('itens-licitacao.ajustar');

@@ -10,15 +10,27 @@
         <strong>Itens da Licitação - Processo #{{$licitacao->processo}}</strong>
     </div>
 
-    <form action="" method="post">
+    <form action="{{route('itens-licitacao.cadastrar', ['licitacaoID' => $licitacao->id])}}" method="post">
         @csrf
         
         
         <div class="card-body card-block">
             <!--------------- ERROS --------------------->
-            <div class="alert alert-danger" style="display:none">
-                <ul id="lista-errors"></ul>
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <!-------------- SUCESSO --------------------->
+            @if(session('sucesso'))
+            <div class="alert alert-success" role="alert" style="margin:0px 10px">
+                {{session('sucesso')}}
             </div>
+            @endif
             <!--------------- FORMULARIO ------------------->
             <!-- POSIÇÃO -->
             <div class="form-group">
@@ -40,7 +52,7 @@
             <div class="form-group">
                 <label class="form-label">Quantidade</label>
                 <div class="input-group">
-                    <input type="number" name="quantidade" placeholder="Quantidade" class="form-control">
+                    <input type="number" name="quantidade_total" placeholder="Quantidade" class="form-control">
                 </div>
             </div>
 
@@ -48,7 +60,7 @@
             <div class="form-group">
                 <label class="form-label">Valor Unitário</label>
                 <div class="input-group">
-                    <input type="number" name="valor" placeholder="Valor unitário" class="form-control">
+                    <input type="number" name="valor_unitario" placeholder="Valor unitário" class="form-control">
                 </div>
             </div>
 
@@ -56,55 +68,36 @@
                 <i class="fa fa-plus"></i> Adicionar
             </button>
             <!------------- FIM FORMULARIO -------------------->
-
-        </div>
-        
-        <div class="card-footer">
-            <button type="submit" class="btn btn-success btn-sm">
-                <i class="fa fa-save"></i> Salvar Modificações nos itens
-            </button>
-            <!------------- EDICAO -------------------->
-            <table class="table">
-                <thead>
-                    <tr>
-                        <td>Item</td>
-                        <td>Descrição</td>
-                        <td>Quantidade</td>
-                        <td>Valor Unitário</td>
-                        <td>Valor Total</td>
-                        <td>Opção</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <!-- ITEM -->
-                        <td><h6>1</h6></td>
-                        <!-- DESCRIÇÃO -->
-                        <td><h6>Mini PC</h6></td>
-                        <!-- Quantidade -->
-                        <td><h6>7</h6></td>
-                        <!-- VALOR UNITÁRIO -->
-                        <td><h6>R$ 3144,00</h6></td>
-                        <!-- VALOR TOTAL -->
-                        <td><h6>R$ 3144,00</h6></td>
-                        <!-- OPÇÕES -->   
-                        <td class="btn-opcs">
-                            <p class="bg-cinza subir" data-id="1">
-                                <i class="fas fa-arrow-up"></i>
-                            </p>
-                            <p class="bg-cinza descer" data-id="1">
-                                <i class="fas fa-arrow-down"></i>
-                            </p>
-                            <p class="bg-vermelho remover-modal" data-toggle="modal" data-target="#smallmodal" data-id="1">
-                                <i class="fas fa-trash"></i>
-                            </p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <!----------- FIM EDICAO ---------------->
         </div>
     </form>
+
+    <div class="card-footer">
+        <button id="btn-salvar-posicoes" type="submit" class="btn btn-success btn-sm">
+            <i class="fa fa-save"></i> Salvar Modificações nos itens
+        </button>
+
+        <form id="form-salvar-posicoes" action="{{route('itens-licitacao.atualizar', [$licitacao->id])}}" method="post">
+            @csrf
+        </form>
+
+        <!------------- EDICAO -------------------->
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>Item</td>
+                    <td>Descrição</td>
+                    <td>Quantidade</td>
+                    <td>Valor Unitário</td>
+                    <td>Valor Total</td>
+                    <td>Opção</td>
+                </tr>
+            </thead>
+            <tbody id="itens-tabela">
+                
+            </tbody>
+        </table>
+        <!----------- FIM EDICAO ---------------->
+    </div>
 </div>
 @endsection
 
@@ -128,7 +121,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary btn-deletar">Confirmar</button>
+                <button type="button" class="btn btn-primary btn-deletar" data-dismiss="modal">Confirmar</button>
             </div>
         </div>
     </div>
@@ -136,13 +129,128 @@
 <!-- end modal small -->
 
 <script>
-    let licitacaoID;
-    $('.remover-modal').click(function() {
-        licitacaoID = $(this).data('id');
+
+    //================== LISTAR
+    let itens = {!!json_encode($itens)!!};
+
+
+    function montarTR(item) {
+        const html = `
+            <tr>
+                <!-- ITEM -->
+                <td><h6>${item.posicao}</h6></td>
+                <!-- DESCRIÇÃO -->
+                <td><h6>${item.descricao}</h6></td>
+                <!-- Quantidade -->
+                <td><h6>${item.quantidade_total}</h6></td>
+                <!-- VALOR UNITÁRIO -->
+                <td><h6>R$ ${item.valor_unitario}</h6></td>
+                <!-- VALOR TOTAL -->
+                <td><h6>R$ ${item.valor_unitario * item.quantidade_total}</h6></td>
+                <!-- OPÇÕES -->   
+                <td class="btn-opcs">
+                    <p class="bg-cinza subir" data-item="${item.id}">
+                        <i class="fas fa-arrow-up"></i>
+                    </p>
+                    <p class="bg-cinza descer" data-item="${item.id}">
+                        <i class="fas fa-arrow-down"></i>
+                    </p>
+                    <p class="bg-vermelho remover-modal" data-toggle="modal" data-target="#smallmodal" data-id="${item.id}">
+                        <i class="fas fa-trash"></i>
+                    </p>
+                </td>
+            </tr>
+        `;
+        return html;
+    }
+
+    function recriarTabela() {
+        $('#itens-tabela').html('');
+        itens.forEach(item => $('#itens-tabela').append(montarTR(item)));
+    }
+
+    function reordernar(item) {
+        let novaOrdem = [];
+
+        for (let i = 0; i < itens.length; i++) {
+            
+            if (item.id == itens[i].id) continue; //pula o item da lista
+            if (i+1 == item.posicao) {
+                item.posicao = ++posicao;
+                novaOrdem.push(item);
+            }
+
+            itens[i].posicao = ++posicao;
+            novaOrdem.push(itens[i])
+        }
+        console.log(novaOrdem);
+        itens = novaOrdem;
+    }
+    
+    $(document).ready(() => recriarTabela())
+
+    $(document).on('click', '.subir', function() {
+        let id = $(this).data('item');
+        let item;
+        itens.forEach(it => {if (id == it.id) item = it})
+
+        let index = itens.indexOf(item);
+        if (index > 0) {
+            itens[index-1].posicao = itens[index-1].posicao + 1;
+            itens[index].posicao = itens[index].posicao - 1;
+        }
+        itens.sort((a, b) => (a.posicao > b.posicao ? 1 : -1))
+
+        recriarTabela();
+    });
+
+    $(document).on('click', '.descer', function() {
+        let id = $(this).data('item');
+        let item;
+        itens.forEach(it => {if (id == it.id) item = it})
+
+        let index = itens.indexOf(item);
+        if (index+1 < itens.length) {
+            itens[index+1].posicao = itens[index+1].posicao - 1;
+            itens[index].posicao = itens[index].posicao + 1;
+        }
+
+        itens.sort((a, b) => (a.posicao > b.posicao ? 1 : -1))
+
+        recriarTabela();
+    });
+
+
+    //=================== REMOVER
+    let itemID;
+    $(document).on('click', '.remover-modal', function() {
+        itemID = $(this).data('id');
     })
 
     $('.btn-deletar').click(() => {
+        console.log(itemID);
+        for (let i = 0; i < itens.length; i++) {
+            if (itens[i].id == itemID) {
+                itens.splice(i, 1);
+                break;
+            }
+        }
+        
+        let posicao = 1;
+        for (let i = 0; i < itens.length; i++) {
+            itens[i].posicao = posicao++;
+        }
+        
+        console.log('aaaa');
+        recriarTabela();
 
     });
+
+    $('#btn-salvar-posicoes').click(function() {
+        itens.forEach(item => {
+            $('#form-salvar-posicoes').append(`<input type="hidden" name="itens[]" value="${item.id},${item.posicao}"/>`);
+        })
+        $('#form-salvar-posicoes').submit();
+    })
 </script>
 @endpush
