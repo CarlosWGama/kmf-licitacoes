@@ -28,7 +28,7 @@ class ItensLicitacoesController extends Controller {
 
         if (!session('itens')) {
             session(['itens' => [
-                [
+                (object)[
                     'id'                => 1,   
                     'posicao'           => 1,
                     'descricao'         => 'Mini PC',
@@ -68,7 +68,7 @@ class ItensLicitacoesController extends Controller {
                 $novoItem = $request->all();     
                 $novoItem['id'] = rand(10, 10000);
                 $novoItem['quantidade_disponivel'] = $novoItem['quantidade_total'];
-                $novasPosicoes[] =  $novoItem;
+                $novasPosicoes[] =  (object)$novoItem;
             }
             $novasPosicoes[] = $item;
 
@@ -82,12 +82,12 @@ class ItensLicitacoesController extends Controller {
             $novoItem = $request->all();   
             $novoItem['id'] = rand(10, 10000);  
             $novoItem['quantidade_disponivel'] = $novoItem['quantidade_total'];
-            $novasPosicoes[] =  $novoItem;
+            $novasPosicoes[] =  (object)$novoItem;
         }
 
         //Ajusta as posições
         foreach ($novasPosicoes as $key => $item) {
-            $novasPosicoes[$key]['posicao'] = $key+1;
+            $novasPosicoes[$key]->posicao = $key+1;
             //$novasPosicoes[$key]->save();
         }
 

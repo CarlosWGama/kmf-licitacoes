@@ -34,12 +34,12 @@
                         <tbody id="itens-tabela">
                             @foreach($itens as $item)
                             <tr>
-                                <td>{{$item['posicao']}}</td>
-                                <td>{{$item['descricao']}}</td>
-                                <td>{{$item['quantidade_total']}}</td>
-                                <td><input type="number" name="qtd_{{$item['id']}}" value="{{$item['quantidade_disponivel']}}"/></td>
-                                <td>R${{number_format($item['valor_unitario'],2,',', '.')}}</td>
-                                <td>R${{number_format($item['valor_unitario'] * $item['quantidade_total'], 2, ',', '.')}}</td>
+                                <td>{{$item->posicao}}</td>
+                                <td>{{$item->descricao}}</td>
+                                <td>{{$item->quantidade_total}}</td>
+                                <td><input type="number" name="qtd_{{$item->id}}" value="{{$item->quantidade_disponivel}}"/></td>
+                                <td>R${{number_format($item->valor_unitario,2,',', '.')}}</td>
+                                <td>R${{number_format($item->valor_unitario * $item->quantidade_total, 2, ',', '.')}}</td>
                             </tr>
                             @endforeach
                         </tbody>
