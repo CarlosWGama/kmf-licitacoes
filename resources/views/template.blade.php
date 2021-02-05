@@ -42,7 +42,7 @@
                 <div class="container-fluid">
                     <div class="header-mobile-inner">
                         <a class="logo" href="index.html">
-                            <img src="{{asset('images/icon/cwg.png')}}" alt="CWG" />
+                            <img src="{{asset('images/logo.png')}}" alt="KMF" />
                         </a>
                         <button class="hamburger hamburger--slider" type="button">
                             <span class="hamburger-box">

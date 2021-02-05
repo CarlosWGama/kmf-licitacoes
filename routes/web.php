@@ -49,7 +49,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
             Route::post('/{licitacaoID}/atualizar-itens', 'ItensLicitacoesController@atualizar')->name('itens-licitacao.atualizar');
             Route::get('/{licitacaoID}/remover/{id?}', 'ItensLicitacoesController@remover')->name('itens-licitacao.remover');
             Route::get('/{licitacaoID}/gerenciar', 'ItensLicitacoesController@gerenciar')->name('itens-licitacao.gerenciar');
-            Route::post('/{licitacaoID}/ajustar/{id?}', 'ItensLicitacoesController@ajustar')->name('itens-licitacao.ajustar');
+            Route::post('/{licitacaoID}/ajustar', 'ItensLicitacoesController@ajustar')->name('itens-licitacao.ajustar');
         });
     });
     

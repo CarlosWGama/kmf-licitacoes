@@ -54,7 +54,7 @@
                             <a class="bg-azul" target="_blank" href="{{route('licitacao.pdf', ['id' => $licitacao->id])}}">
                                 <i class="fas fa-file-pdf"></i> Baixar PDF
                             </a>
-                            <a class="bg-cinza" href="{{route('itens-licitacao.listar', ['licitacaoID' => $licitacao->id])}}">
+                            <a class="bg-cinza" href="{{route('itens-licitacao.gerenciar', ['licitacaoID' => $licitacao->id])}}">
                                 <i class="fas fa-balance-scale"></i> Gerenciar Itens
                             </a>
                         </td>

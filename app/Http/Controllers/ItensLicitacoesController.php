@@ -33,6 +33,7 @@ class ItensLicitacoesController extends Controller {
                     'posicao'           => 1,
                     'descricao'         => 'Mini PC',
                     'quantidade_total'  => 7,
+                    'quantidade_disponivel'  => 7,
                     'valor_unitario'    => 3144.00
                 ]
             ]]);
@@ -66,6 +67,7 @@ class ItensLicitacoesController extends Controller {
                 //$novoItem->quantidade_disponivel = $novoItem->quantidade_total;
                 $novoItem = $request->all();     
                 $novoItem['id'] = rand(10, 10000);
+                $novoItem['quantidade_disponivel'] = $novoItem['quantidade_total'];
                 $novasPosicoes[] =  $novoItem;
             }
             $novasPosicoes[] = $item;
@@ -79,6 +81,7 @@ class ItensLicitacoesController extends Controller {
             //$novoItem->quantidade_disponivel = $novoItem->quantidade_total;    
             $novoItem = $request->all();   
             $novoItem['id'] = rand(10, 10000);  
+            $novoItem['quantidade_disponivel'] = $novoItem['quantidade_total'];
             $novasPosicoes[] =  $novoItem;
         }
 
@@ -92,6 +95,9 @@ class ItensLicitacoesController extends Controller {
         return redirect()->route('itens-licitacao.listar', ['licitacaoID' => $licitacaoID])->with('sucesso', 'Item adicionado com sucesso');
     }
     
+    /**
+     * Atualiza a ordem dos itens 
+     */
     public function atualizar(Request $request, int $licitacaoID) {
         
         $itens = $request->itens;
@@ -102,5 +108,57 @@ class ItensLicitacoesController extends Controller {
         }
        
         return redirect()->route('itens-licitacao.listar', ['licitacaoID' => $licitacaoID])->with('sucesso', 'Alterações salvas com sucesso');
+    }
+
+    /**
+     * Abre a opção de gerenciar os itens da lista
+     */
+    public function gerenciar(Request $request, int $licitacaoID) {
+
+        $this->dados['licitacao'] = (object)[
+            'id'                    => $licitacaoID,
+            'processo'              => '1865/2017', 
+            'nota_empenho'          => '319-320-321/2018',
+            'contratante'           => 'Tribunal de Contas do Estado de Rondônia',
+            'objeto'                => 'objeto...',
+            'contratado'            => 'contratado...',
+            'endereco_eletronico'   => 'teste@teste.com',
+            'local_entrega'         => 'Centro de Maceió',
+            'horario_entrega'       => '8h as 18h',
+            'prazo_entrega'         => 'dia 05 de Março'
+        ];
+
+        if (!session('itens')) {
+            session(['itens' => [
+                (object)[
+                    'id'                    => 1,   
+                    'posicao'               => 1,
+                    'descricao'             => 'Mini PC',
+                    'quantidade_total'      => 7,
+                    'quantidade_disponivel' => 7,
+                    'valor_unitario'        => 3144.00
+                ]
+            ]]);
+        }
+
+        $this->dados['itens'] = (array)session('itens');
+        return view('licitacoes.itens.gerenciar', $this->dados);
+    } 
+
+    /**
+     * Ajusta a quantidade de itens
+     */
+    public function ajustar(Request $request, int $licitacaoID) {
+
+
+        $dados = $request->except('_token');
+        foreach ($dados as $key => $quantidade) {
+            list($foo, $id) = explode('_', $key);
+
+            //$id  $quantidade ;
+        }
+        
+        return redirect()->route('itens-licitacao.gerenciar', ['licitacaoID' => $licitacaoID])->with('sucesso', 'Alterações salvas com sucesso');
+
     }
 }
